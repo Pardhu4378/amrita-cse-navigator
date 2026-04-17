@@ -1,0 +1,452 @@
+{% extends "base.html" %}
+
+{% block title %}Amrita CSE Navigator — AI Academic & Career Companion{% endblock %}
+
+{% block landing_content %}
+<!-- ═══ MODERN LANDING PAGE ═══════════════════════════════════════════════════════ -->
+<div class="landing-page modern-dark-theme">
+    
+    <!-- Ambient Background Glows -->
+    <div class="ambient-glow glow-cyan"></div>
+    <div class="ambient-glow glow-purple"></div>
+
+    <!-- Navbar -->
+    <nav class="landing-nav-modern">
+        <div class="container d-flex justify-content-between align-items-center py-4">
+            <div class="landing-brand-modern">
+                <div class="brand-icon-modern">
+                    <i class="bi bi-mortarboard-fill"></i>
+                </div>
+                <span>Amrita Navigator</span>
+            </div>
+            
+            <div class="nav-links d-none d-md-flex">
+                <a href="#features">Features</a>
+                <a href="#dashboard">Dashboard</a>
+                <a href="#about">About</a>
+            </div>
+
+            <div class="nav-actions">
+                <a href="{{ url_for('login') }}" class="btn btn-outline-glass me-2 d-none d-sm-inline-block">Login</a>
+                <a href="{{ url_for('profile') }}" class="btn btn-glow">Get Started</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section-modern d-flex align-items-center">
+        <div class="container">
+            <div class="row align-items-center min-vh-75">
+                
+                <!-- Left Content -->
+                <div class="col-lg-6 z-1">
+                    <div class="hero-content-modern animate-fadeInUp">
+                        <div class="hero-badge-modern mb-4">
+                            <span class="badge-dot"></span>
+                            Amrita CSE 2023+ Curriculum
+                        </div>
+                        <h1 class="hero-title-modern">
+                            Navigate Your<br>
+                            <span class="gradient-text-modern">CSE Journey</span><br>
+                            Smarter.
+                        </h1>
+                        <p class="hero-subtitle-modern mt-4 mb-5">
+                            AI-powered academic tracking, subject mastery, and personalized career roadmaps tailored exclusively for Amrita University students.
+                        </p>
+                        <div class="hero-actions-modern d-flex flex-wrap gap-3">
+                            <a href="{{ url_for('profile') }}" class="btn btn-glow btn-lg px-4 py-3">
+                                Get Started <i class="bi bi-arrow-right ms-2"></i>
+                            </a>
+                            <a href="{{ url_for('login') }}" class="btn btn-glass-modern btn-lg px-4 py-3">
+                                <i class="bi bi-box-arrow-in-right me-2"></i> Login
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Visual: Mock UI Panel -->
+                <div class="col-lg-6 d-none d-lg-block z-1">
+                    <div class="mock-ui-wrapper animate-float-slow">
+                        <!-- Background Decorative Panel -->
+                        <div class="mock-panel-bg"></div>
+                        
+                        <!-- Main Glass Panel -->
+                        <div class="mock-panel-main card-glass-modern">
+                            <!-- Header -->
+                            <div class="mock-header">
+                                <div class="mac-buttons">
+                                    <span></span><span></span><span></span>
+                                </div>
+                                <div class="mock-title">Dashboard Overview</div>
+                            </div>
+                            
+                            <!-- Body -->
+                            <div class="mock-body p-4">
+                                <!-- Welcome Mock -->
+                                <div class="mock-welcome mb-4">
+                                    <div class="mock-avatar"></div>
+                                    <div class="mock-welcome-text">
+                                        <div class="mock-line mock-line-lg"></div>
+                                        <div class="mock-line mock-line-sm mt-2"></div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Stats Mock -->
+                                <div class="row g-3 mb-4">
+                                    <div class="col-6">
+                                        <div class="mock-stat-card">
+                                            <div class="mock-circle mx-auto mb-2"></div>
+                                            <div class="mock-line mx-auto" style="width: 50%;"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="mock-stat-card">
+                                            <div class="mock-icon mb-2"></div>
+                                            <div class="mock-line" style="width: 70%;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Checklist Mock -->
+                                <div class="mock-checklist">
+                                    <div class="mock-row">
+                                        <div class="mock-check-circle fill"></div>
+                                        <div class="mock-line flex-grow-1"></div>
+                                    </div>
+                                    <div class="mock-row">
+                                        <div class="mock-check-circle fill border"></div>
+                                        <div class="mock-line flex-grow-1" style="opacity: 0.5;"></div>
+                                    </div>
+                                    <div class="mock-row">
+                                        <div class="mock-check-circle"></div>
+                                        <div class="mock-line flex-grow-1" style="opacity: 0.3;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Floating Accent Cards -->
+                        <div class="floating-accent accent-top-right card-glass-modern p-3">
+                            <i class="bi bi-robot text-primary-light"></i>
+                            <span class="ms-2 fw-bold small text-white">AI Assistant Active</span>
+                        </div>
+                        <div class="floating-accent accent-bottom-left card-glass-modern p-3">
+                            <div class="d-flex align-items-center">
+                                <div class="spinner-grow spinner-grow-sm text-success me-2" role="status"></div>
+                                <span class="fw-bold small text-white">Career Mapped</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<style>
+/* Modern Dark Theme Utilities for Landing */
+.modern-dark-theme {
+    background-color: #050810; /* Deeper black for Astra aesthetic */
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+    color: #e2e8f0;
+}
+
+/* Ambient Glows */
+.ambient-glow {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(100px);
+    z-index: 0;
+    opacity: 0.4;
+    pointer-events: none;
+}
+.glow-cyan {
+    top: -10%;
+    left: 20%;
+    width: 50vw;
+    height: 50vw;
+    max-width: 600px;
+    max-height: 600px;
+    background: radial-gradient(circle, rgba(14, 165, 233, 0.4) 0%, rgba(14, 165, 233, 0) 70%);
+}
+.glow-purple {
+    bottom: -10%;
+    right: 5%;
+    width: 60vw;
+    height: 60vw;
+    max-width: 800px;
+    max-height: 800px;
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.3) 0%, rgba(139, 92, 246, 0) 70%);
+}
+
+/* Navbar */
+.landing-nav-modern {
+    position: relative;
+    z-index: 10;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+.landing-brand-modern {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 800;
+    font-size: 1.25rem;
+    color: white;
+}
+.brand-icon-modern {
+    width: 35px;
+    height: 35px;
+    background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+}
+.nav-links a {
+    color: #94a3b8;
+    text-decoration: none;
+    margin: 0 1rem;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: color 0.2s;
+}
+.nav-links a:hover {
+    color: white;
+}
+
+/* Hero Content */
+.hero-section-modern {
+    padding: 6rem 0;
+    position: relative;
+    z-index: 10;
+}
+.min-vh-75 { min-height: 75vh; }
+
+.hero-badge-modern {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #cbd5e1;
+}
+.badge-dot {
+    width: 8px;
+    height: 8px;
+    background: #10b981;
+    border-radius: 50%;
+    margin-right: 8px;
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+}
+
+.hero-title-modern {
+    font-size: 4rem;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: white;
+}
+.gradient-text-modern {
+    background: linear-gradient(to right, #60a5fa, #a78bfa, #f472b6);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.hero-subtitle-modern {
+    font-size: 1.15rem;
+    color: #94a3b8;
+    max-width: 90%;
+    line-height: 1.6;
+}
+
+.btn-glass-modern {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+.btn-glass-modern:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+    color: white;
+}
+
+/* Mock UI Right Panel CSS */
+.mock-ui-wrapper {
+    position: relative;
+    width: 100%;
+    height: auto;
+    perspective: 1000px;
+}
+
+.mock-panel-bg {
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(139, 92, 246, 0.2));
+    border-radius: 24px;
+    transform: rotate(3deg);
+    z-index: 0;
+    filter: blur(2px);
+}
+
+.card-glass-modern {
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 24px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    z-index: 1;
+    position: relative;
+}
+
+.mock-panel-main {
+    transform: rotateY(-5deg) rotateX(2deg);
+    transition: transform 0.5s ease;
+}
+
+.mock-ui-wrapper:hover .mock-panel-main {
+    transform: rotateY(0deg) rotateX(0deg);
+}
+
+.mock-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+}
+.mac-buttons {
+    display: flex;
+    gap: 6px;
+}
+.mac-buttons span {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #475569;
+}
+.mac-buttons span:nth-child(1) { background: #ef4444; }
+.mac-buttons span:nth-child(2) { background: #f59e0b; }
+.mac-buttons span:nth-child(3) { background: #10b981; }
+
+.mock-title {
+    margin-left: 2rem;
+    flex-grow: 1;
+    text-align: center;
+    font-size: 0.8rem;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.mock-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+}
+.mock-welcome {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+.mock-line {
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+.mock-line-lg { width: 120px; }
+.mock-line-sm { width: 80px; }
+
+.mock-stat-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 1.5rem 1rem;
+    text-align: center;
+}
+.mock-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 4px solid #8b5cf6;
+    border-top-color: transparent;
+    transform: rotate(45deg);
+}
+.mock-icon {
+    width: 40px;
+    height: 40px;
+    background: rgba(59, 130, 246, 0.2);
+    border-radius: 10px;
+    margin: 0 auto;
+}
+
+.mock-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+.mock-check-circle {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid #475569;
+}
+.mock-check-circle.fill {
+    background: #10b981;
+    border-color: #10b981;
+}
+.mock-check-circle.border {
+    background: transparent;
+    border-color: #f59e0b;
+}
+
+.floating-accent {
+    position: absolute;
+    z-index: 10;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+    animation: float 4s ease-in-out infinite;
+}
+.accent-top-right {
+    top: 50px;
+    right: -30px;
+    animation-delay: 0s;
+}
+.accent-bottom-left {
+    bottom: 50px;
+    left: -40px;
+    animation-delay: 2s;
+}
+
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+}
+.animate-float-slow {
+    animation: float 6s ease-in-out infinite;
+}
+
+@media (max-width: 992px) {
+    .hero-title-modern { font-size: 3rem; }
+}
+</style>
+
+{% endblock %}

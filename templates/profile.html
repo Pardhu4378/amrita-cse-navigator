@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+{% block title %}Setup Your Profile — Amrita CSE Navigator{% endblock %}
+
+{% block landing_content %}
+<div class="profile-setup-page">
+    <div class="container min-vh-100 d-flex align-items-center justify-content-center py-5">
+        <div class="profile-form-card animate-fadeInUp" style="max-width: 600px; width: 100%;">
+            <div class="form-card-header text-center">
+                <div class="form-header-icon mx-auto mb-3" style="width: 60px; height: 60px; font-size: 2rem;">
+                    <i class="bi bi-mortarboard-fill"></i>
+                </div>
+                <h1>Setup Your Profile</h1>
+                <p>Let's personalize your Amrita CSE journey in 4 quick steps.</p>
+            </div>
+            
+            <div class="form-card-body p-4">
+                <!-- Progress Indicator -->
+                <div class="wizard-progress mb-4 d-flex justify-content-between position-relative">
+                    <div class="progress-line position-absolute top-50 start-0 w-100 translate-middle-y" style="height: 2px; background: rgba(255,255,255,0.1); z-index: 1;"></div>
+                    <div class="progress-line-fill position-absolute top-50 start-0 translate-middle-y" id="wizardProgressFill" style="height: 2px; background: var(--accent-purple); z-index: 1; width: 0%; transition: width 0.3s ease;"></div>
+                    
+                    <div class="step-indicator active" id="indicator-1">1</div>
+                    <div class="step-indicator" id="indicator-2">2</div>
+                    <div class="step-indicator" id="indicator-3">3</div>
+                    <div class="step-indicator" id="indicator-4">4</div>
+                </div>
+
+                <form action="{{ url_for('profile') }}" method="POST" id="profileWizard">
+                    
+                    <!-- STEP 1: Basic Info -->
+                    <div class="wizard-step active" id="step-1">
+                        <h4 class="mb-3 text-center">Who are you?</h4>
+                        <div class="mb-3">
+                            <label class="form-label-custom">Your Name *</label>
+                            <div class="input-group-custom">
+                                <i class="bi bi-person-fill"></i>
+                                <input type="text" name="name" id="nameInput" class="form-control-custom" placeholder="Enter your full name" required>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label-custom">Current Semester *</label>
+                            <div class="input-group-custom">
+                                <i class="bi bi-calendar3"></i>
+                                <select name="semester" class="form-control-custom">
+                                    {% for i in range(1, 9) %}
+                                    <option value="{{ i }}">Semester {{ i }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <button type="button" class="btn btn-glow" onclick="nextStep(2)">Next <i class="bi bi-arrow-right"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- STEP 2: Coding Level -->
+                    <div class="wizard-step" id="step-2" style="display: none;">
+                        <h4 class="mb-3 text-center">What describes your coding level?</h4>
+                        <div class="lang-selector d-flex flex-column gap-2 mb-4">
+                            <label class="lang-option w-100 m-0">
+                                <input type="radio" name="coding_level" value="Beginner" checked>
+                                <span class="lang-btn w-100 justify-content-start p-3">
+                                    <i class="bi bi-emoji-smile"></i> Beginner (Still learning basics)
+                                </span>
+                            </label>
+                            <label class="lang-option w-100 m-0">
+                                <input type="radio" name="coding_level" value="Intermediate">
+                                <span class="lang-btn w-100 justify-content-start p-3">
+                                    <i class="bi bi-laptop"></i> Intermediate (Can write functions & basic logic)
+                                </span>
+                            </label>
+                            <label class="lang-option w-100 m-0">
+                                <input type="radio" name="coding_level" value="Advanced">
+                                <span class="lang-btn w-100 justify-content-start p-3">
+                                    <i class="bi bi-lightning-charge-fill"></i> Advanced (Comfortable with DSA/Projects)
+                                </span>
+                            </label>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <button type="button" class="btn btn-glass" onclick="nextStep(1)"><i class="bi bi-arrow-left"></i> Back</button>
+                            <button type="button" class="btn btn-glow" onclick="nextStep(3)">Next <i class="bi bi-arrow-right"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- STEP 3: Specialization -->
+                    <div class="wizard-step" id="step-3" style="display: none;">
+                        <h4 class="mb-3 text-center">Primary Career Goal</h4>
+                        <div class="spec-grid mb-4">
+                            {% set specs = [
+                                ('Product-Based Companies', 'bi-building-fill', '#6366f1'),
+                                ('Artificial Intelligence', 'bi-robot', '#8b5cf6'),
+                                ('Cyber Security', 'bi-shield-lock-fill', '#ef4444'),
+                                ('Data Science', 'bi-bar-chart-fill', '#0ea5e9'),
+                                ('Research', 'bi-journal-richtext', '#10b981'),
+                                ('Startup', 'bi-rocket-takeoff-fill', '#f59e0b')
+                            ] %}
+                            {% for spec, icon, color in specs %}
+                            <label class="spec-option">
+                                <input type="radio" name="specialization" value="{{ spec }}" {% if loop.first %}checked{% endif %}>
+                                <span class="spec-btn" data-color="{{ color }}">
+                                    <i class="bi {{ icon }}" style="color: {{ color }}"></i>
+                                    <span>{{ spec }}</span>
+                                </span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <button type="button" class="btn btn-glass" onclick="nextStep(2)"><i class="bi bi-arrow-left"></i> Back</button>
+                            <button type="button" class="btn btn-glow" onclick="nextStep(4)">Next <i class="bi bi-arrow-right"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- STEP 4: Descriptive Goal -->
+                    <div class="wizard-step" id="step-4" style="display: none;">
+                        <h4 class="mb-3 text-center">Describe Your Goal</h4>
+                        <p class="text-secondary text-center small mb-3">Help Amrita AI understand your ambitions (e.g. "I want to get into Google", "I want to build a fintech startup").</p>
+                        <div class="mb-4">
+                            <textarea name="career_goal_desc" rows="4" class="form-control-custom w-100 p-3" placeholder="I want to..." style="background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); border-radius: 12px; color: white;" required></textarea>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <button type="button" class="btn btn-glass" onclick="nextStep(3)"><i class="bi bi-arrow-left"></i> Back</button>
+                            <button type="submit" class="btn btn-glow"><i class="bi bi-rocket-takeoff-fill me-2"></i> Complete</button>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.step-indicator {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: var(--secondary-bg);
+    border: 2px solid var(--glass-border);
+    display: flex; align-items: center; justify-content: center;
+    position: relative; z-index: 2;
+    color: var(--text-muted);
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+.step-indicator.active {
+    background: var(--accent-purple);
+    border-color: var(--accent-purple);
+    color: white;
+    box-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+}
+.wizard-step { animation: fadeIn 0.4s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+
+<script>
+function nextStep(step) {
+    if(step === 2) {
+        const nameInput = document.getElementById('nameInput').value.trim();
+        if(!nameInput) {
+            alert('Please enter your name.');
+            return;
+        }
+    }
+    document.querySelectorAll('.wizard-step').forEach(el => el.style.display = 'none');
+    document.getElementById('step-' + step).style.display = 'block';
+    
+    document.querySelectorAll('.step-indicator').forEach((el, idx) => {
+        if(idx + 1 <= step) el.classList.add('active');
+        else el.classList.remove('active');
+    });
+    
+    document.getElementById('wizardProgressFill').style.width = ((step - 1) * 33.33) + '%';
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<!-- Edit Profile from dashboard -->
+<div class="page-header mb-4">
+    <h2 class="page-title"><i class="bi bi-person-gear me-2"></i>Edit Profile</h2>
+</div>
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card-glass p-4">
+            <form action="{{ url_for('profile') }}" method="POST">
+                <input type="hidden" name="edit" value="1">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label-custom">Your Name</label>
+                        <input type="text" name="name" class="form-control-custom w-100" value="{{ user.name if user else '' }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label-custom">Current Semester</label>
+                        <select name="semester" class="form-control-custom w-100">
+                            {% for i in range(1, 9) %}
+                            <option value="{{ i }}" {% if user and user.semester==i %}selected{% endif %}>Semester {{ i }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label-custom">Coding Level</label>
+                        <select name="coding_level" class="form-control-custom w-100">
+                            <option value="Beginner" {% if user and user.coding_level=='Beginner' %}selected{% endif %}>Beginner</option>
+                            <option value="Intermediate" {% if user and user.coding_level=='Intermediate' %}selected{% endif %}>Intermediate</option>
+                            <option value="Advanced" {% if user and user.coding_level=='Advanced' %}selected{% endif %}>Advanced</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label-custom">Specialization</label>
+                        <select name="specialization" class="form-control-custom w-100">
+                            {% for spec in specializations %}
+                            <option value="{{ spec }}" {% if user and user.specialization==spec %}selected{% endif %}>{{ spec }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label-custom">Career Goal Description</label>
+                        <textarea name="career_goal_desc" rows="3" class="form-control-custom w-100 p-2" required>{{ user.career_goal_desc if user else '' }}</textarea>
+                    </div>
+                    <div class="col-12 mt-4 text-end">
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-glass">Cancel</a>
+                        <button type="submit" class="btn btn-glow">Save Changes</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

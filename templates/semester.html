@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% set current_user = user %}
+{% block title %}Semester View — Amrita CSE Navigator{% endblock %}
+{% block page_title %}<i class="bi bi-collection-fill me-2"></i>Semester View{% endblock %}
+
+{% block content %}
+<div class="page-header mb-4 animate-fadeInUp">
+    <h2 class="page-title">Full Curriculum Roadmap</h2>
+    <p class="page-subtitle">Amrita University CSE 2023+ — 8 Semesters · {{ total_subjects_count }} Total Subjects</p>
+</div>
+
+<div class="accordion semester-accordion" id="semesterAccordion">
+    {% for sem in range(1, 9) %}
+    {% set sem_subjects = all_data.get(sem, []) %}
+    {% set is_current = (sem == user.semester) %}
+    {% set stats = progress_stats.by_semester.get(sem, {}) if progress_stats is defined else {} %}
+    {% set pct = stats.get('pct', 0) if stats else 0 %}
+
+    <div class="accordion-item semester-accordion-item {% if is_current %}current-sem{% endif %} animate-fadeInUp"
+        style="--anim-delay: {{ loop.index0 * 0.05 }}s; animation-delay: var(--anim-delay);">
+        <h2 class="accordion-header" id="semHead{{ sem }}">
+            <button class="accordion-button semester-accordion-btn {% if not is_current %}collapsed{% endif %}"
+                type="button" data-bs-toggle="collapse" data-bs-target="#semCollapse{{ sem }}"
+                aria-expanded="{{ 'true' if is_current else 'false' }}">
+                <div class="sem-btn-left">
+                    <div class="sem-number-badge {% if is_current %}current{% endif %}">{{ sem }}</div>
+                    <div>
+                        <span class="sem-title">Semester {{ sem }}</span>
+                        {% if is_current %}<span class="current-tag ms-2">Current</span>{% endif %}
+                        {% if sem == 8 %}<span class="current-tag ms-2"
+                            style="background:linear-gradient(135deg,#f59e0b,#ef4444)">Final Year</span>{% endif %}
+                    </div>
+                </div>
+                <div class="sem-btn-right">
+                    <div class="sem-progress-mini">
+                        <div class="sem-progress-fill" style="--prog-pct: {{ pct }}%; width: var(--prog-pct);"></div>
+                    </div>
+                    <span class="sem-pct-label">{{ pct }}%</span>
+                    <span class="sem-count-badge">{{ sem_subjects|length }} subjects</span>
+                </div>
+            </button>
+        </h2>
+        <div id="semCollapse{{ sem }}" class="accordion-collapse collapse {% if is_current %}show{% endif %}"
+            data-bs-parent="#semesterAccordion">
+            <div class="accordion-body sem-accordion-body">
+                <div class="row g-3">
+                    {% for item in sem_subjects %}
+                    {% set s = item.subject %}
+                    {% set status = item.status or 'Not Started' %}
+                    <div class="col-md-6 col-lg-4">
+                        <div class="subject-card-flat status-{{ status.lower().replace(' ', '-') }}">
+                            <div class="subject-card-top">
+                                <div class="subject-card-name">{{ s.subject_name }}</div>
+                                <span class="status-pill status-{{ status.lower().replace(' ', '-') }}">
+                                    {% if status == 'Completed' %}<i class="bi bi-check-circle-fill"></i>
+                                    {% elif status == 'In Progress' %}<i class="bi bi-clock-fill"></i>
+                                    {% else %}<i class="bi bi-circle"></i>{% endif %}
+                                    {{ status }}
+                                </span>
+                            </div>
+                            <p class="subject-card-career">
+                                <i class="bi bi-arrow-right-circle-fill me-1" style="color:var(--accent-purple)"></i>
+                                {{ s.career_relevance[:80] if s.career_relevance else '' }}{% if s.career_relevance and
+                                s.career_relevance|length > 80 %}...{% endif %}
+                            </p>
+                            <div class="subject-card-actions">
+                                <a href="{{ url_for('subject_detail', subject_id=s.id) }}" class="btn btn-glass btn-xs">
+                                    <i class="bi bi-play-circle-fill me-1"></i> Study
+                                </a>
+                                <select class="progress-select-mini" data-subject-id="{{ s.id }}"
+                                    id="progress-{{ s.id }}">
+                                    <option {% if status=='Not Started' %}selected{% endif %}>Not Started</option>
+                                    <option {% if status=='In Progress' %}selected{% endif %}>In Progress</option>
+                                    <option {% if status=='Completed' %}selected{% endif %}>Completed</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Progress update from semester view
+    document.querySelectorAll('.progress-select-mini').forEach(sel => {
+        sel.addEventListener('change', function () {
+            const subjectId = this.dataset.subjectId;
+            const status = this.value;
+            fetch('/api/progress/update', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ subject_id: parseInt(subjectId), status: status })
+            }).then(r => r.json()).then(data => {
+                const card = this.closest('.subject-card-flat');
+                card.className = 'subject-card-flat status-' + status.toLowerCase().replace(/ /g, '-');
+                showToast('Progress updated!', 'success');
+            });
+        });
+    });
+</script>
+{% endblock %}

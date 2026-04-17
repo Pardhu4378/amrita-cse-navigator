@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% set current_user = user %}
+{% block title %}Progress Tracker — Amrita CSE Navigator{% endblock %}
+{% block page_title %}<i class="bi bi-graph-up-arrow me-2"></i>Progress Tracker{% endblock %}
+
+{% block content %}
+<div class="page-header mb-4 animate-fadeInUp">
+    <h2 class="page-title">Academic Progress Tracker</h2>
+    <p class="page-subtitle">Track your journey across all 8 semesters</p>
+</div>
+
+<!-- Overall Stats Row -->
+<div class="row g-3 mb-4 animate-fadeInUp">
+    <div class="col-sm-6 col-lg-3">
+        <div class="progress-overview-card" style="--accent-color: #6366f1">
+            <div class="progress-overview-icon"><i class="bi bi-bar-chart-fill"></i></div>
+            <div class="progress-overview-number">{{ progress_stats.overall }}%</div>
+            <div class="progress-overview-label">Overall Completion</div>
+            <div class="progress-overview-bar">
+                <div class="progress-overview-fill"
+                    style="--prog-pct: {{ progress_stats.overall }}%; width: var(--prog-pct);"></div>
+            </div>
+        </div>
+    </div>
+    {% set total_completed = namespace(v=0) %}
+    {% set total_subjects = namespace(v=0) %}
+    {% set total_inprogress = namespace(v=0) %}
+    {% for sem, stats in progress_stats.by_semester.items() %}
+    {% set total_completed.v = total_completed.v + stats.completed %}
+    {% set total_subjects.v = total_subjects.v + stats.total %}
+    {% set total_inprogress.v = total_inprogress.v + stats.in_progress %}
+    {% endfor %}
+    <div class="col-sm-6 col-lg-3">
+        <div class="progress-overview-card" style="--accent-color: #10b981">
+            <div class="progress-overview-icon"><i class="bi bi-check-circle-fill"></i></div>
+            <div class="progress-overview-number">{{ total_completed.v }}</div>
+            <div class="progress-overview-label">Subjects Completed</div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="progress-overview-card" style="--accent-color: #f59e0b">
+            <div class="progress-overview-icon"><i class="bi bi-clock-fill"></i></div>
+            <div class="progress-overview-number">{{ total_inprogress.v }}</div>
+            <div class="progress-overview-label">In Progress</div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="progress-overview-card" style="--accent-color: #ec4899">
+            <div class="progress-overview-icon"><i class="bi bi-collection-fill"></i></div>
+            <div class="progress-overview-number">{{ total_subjects.v }}</div>
+            <div class="progress-overview-label">Total Subjects</div>
+        </div>
+    </div>
+</div>
+
+<!-- Per-Semester Progress -->
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="card-glass animate-fadeInUp" style="animation-delay:0.1s">
+            <div class="card-glass-header">
+                <h5><i class="bi bi-bar-chart-fill me-2 text-primary-light"></i>Semester-wise Progress</h5>
+            </div>
+            <div class="card-glass-body">
+                {% for sem in range(1, 9) %}
+                {% set stats = progress_stats.by_semester.get(sem, {}) %}
+                {% set pct = stats.get('pct', 0) %}
+                {% set is_current = (sem == user.semester) %}
+                <div class="sem-progress-row {% if is_current %}current-sem-row{% endif %}">
+                    <div class="sem-progress-label">
+                        <span>Semester {{ sem }}</span>
+                        {% if is_current %}<span class="current-tag ms-1">Current</span>{% endif %}
+                        <span class="sem-progress-count">{{ stats.get('completed', 0) }}/{{ stats.get('total', 0)
+                            }}</span>
+                    </div>
+                    <div class="custom-progress-bar">
+                        <div class="progress-fill
+                            {% if pct == 100 %}progress-fill-green
+                            {% elif pct > 0 %}progress-fill-blue
+                            {% else %}progress-fill-empty{% endif %}"
+                            style="--prog-pct: {{ pct }}%; width: var(--prog-pct);" data-target-width="{{ pct }}">
+                        </div>
+                    </div>
+                    <span class="sem-progress-pct">{{ pct }}%</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Subject-wise Controls -->
+    <div class="col-lg-7">
+        <div class="card-glass animate-fadeInUp" style="animation-delay:0.15s">
+            <div class="card-glass-header">
+                <h5><i class="bi bi-list-check me-2 text-success-light"></i>Update Subject Status</h5>
+                <span class="text-muted-custom" style="font-size:0.8rem">Auto-saves on change</span>
+            </div>
+            <div class="card-glass-body p-0">
+                {% for sem in range(1, 9) %}
+                {% set sem_subs = all_subjects_by_sem.get(sem, []) %}
+                {% if sem_subs %}
+                <div class="progress-sem-section">
+                    <div class="progress-sem-header">
+                        Semester {{ sem }}
+                        {% if sem == user.semester %}<span class="current-tag ms-2">Current</span>{% endif %}
+                    </div>
+                    {% for item in sem_subs %}
+                    {% set s = item.subject %}
+                    {% set status = item.status %}
+                    <div class="progress-subject-row" id="row-{{ s.id }}">
+                        <div class="progress-subject-name">{{ s.subject_name }}</div>
+                        <div class="progress-subject-controls">
+                            {% for st in ['Not Started', 'In Progress', 'Completed'] %}
+                            <button
+                                class="status-mini-btn {% if status == st %}status-mini-active status-mini-{{ st.lower().replace(' ','-') }}{% endif %}"
+                                data-subject-id="{{ s.id }}" data-status="{{ st }}"
+                                onclick="updateProgressInline(this)">
+                                {% if st == 'Completed' %}<i class="bi bi-check-circle-fill"></i>
+                                {% elif st == 'In Progress' %}<i class="bi bi-clock-fill"></i>
+                                {% else %}<i class="bi bi-circle"></i>{% endif %}
+                                <span class="d-none d-sm-inline">{{ st }}</span>
+                            </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    function updateProgressInline(btn) {
+        const subjectId = btn.dataset.subjectId;
+        const status = btn.dataset.status;
+        fetch('/api/progress/update', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ subject_id: parseInt(subjectId), status: status })
+        }).then(r => r.json()).then(data => {
+            const row = document.getElementById('row-' + subjectId);
+            row.querySelectorAll('.status-mini-btn').forEach(b => {
+                b.classList.remove('status-mini-active', 'status-mini-not-started', 'status-mini-in-progress', 'status-mini-completed');
+            });
+            btn.classList.add('status-mini-active', 'status-mini-' + status.toLowerCase().replace(/ /g, '-'));
+            showToast('"' + status + '" saved!', 'success');
+            // Update overall badge in topbar if available
+            if (data.overall !== undefined) {
+                const badge = document.querySelector('.ring-pct');
+                if (badge) badge.textContent = data.overall + '%';
+            }
+        });
+    }
+</script>
+{% endblock %}

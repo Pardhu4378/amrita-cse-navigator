@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+{% set current_user = user %}
+{% block title %}Dashboard — Amrita CSE Navigator{% endblock %}
+{% block page_title %}<i class="bi bi-grid-1x2-fill me-2"></i>Dashboard{% endblock %}
+
+{% block content %}
+<!-- Welcome Banner -->
+<div class="welcome-banner animate-fadeInUp">
+    <div class="welcome-left">
+        <div class="welcome-avatar">{{ user.name[0].upper() }}</div>
+        <div>
+            <h2 class="welcome-title">Welcome back, {{ user.name.split()[0] }}! 👋</h2>
+            <p class="welcome-sub">
+                <i class="bi bi-calendar3 me-1"></i> Semester {{ user.semester }} ·
+                <i class="bi bi-diagram-3 me-1 ms-2"></i> {{ user.specialization }} ·
+                <i class="bi bi-laptop me-1 ms-2"></i> {{ user.coding_level }} Level
+                {% if user.cgpa %} · <i class="bi bi-award-fill me-1 ms-2" style="color:var(--accent-gold)"></i> {{
+                user.cgpa }} CGPA{% endif %}
+            </p>
+        </div>
+    </div>
+    <div class="welcome-right">
+        <div class="overall-progress-ring">
+            <svg viewBox="0 0 80 80" class="progress-ring-svg">
+                <circle cx="40" cy="40" r="34" class="ring-bg" />
+                <circle cx="40" cy="40" r="34" class="ring-fill"
+                    style="--dash-offset: {{ 213.6 - (213.6 * progress_stats.overall / 100) }}; stroke-dashoffset: var(--dash-offset);" />
+            </svg>
+            <div class="ring-text">
+                <span class="ring-pct">{{ progress_stats.overall }}%</span>
+                <span class="ring-label">Complete</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Stats Row -->
+<div class="row g-3 mb-4 animate-fadeInUp" style="animation-delay:0.1s">
+    <div class="col-sm-6 col-lg-3">
+        <div class="stat-card" style="--card-accent: #6366f1">
+            <div class="stat-card-icon"><i class="bi bi-collection-fill"></i></div>
+            <div class="stat-card-info">
+                <span class="stat-card-number">{{ current_sem_subjects|length }}</span>
+                <span class="stat-card-label">Current Subjects</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="stat-card" style="--card-accent: #10b981">
+            <div class="stat-card-icon"><i class="bi bi-check-circle-fill"></i></div>
+            <div class="stat-card-info">
+                <span class="stat-card-number">{{ progress_stats.by_semester.get(user.semester, {}).get('completed', 0)
+                    }}</span>
+                <span class="stat-card-label">Completed This Sem</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="stat-card" style="--card-accent: #f59e0b">
+            <div class="stat-card-icon"><i class="bi bi-diagram-3-fill"></i></div>
+            <div class="stat-card-info">
+                <span class="stat-card-number">{{ user.specialization.split('-')[0] }}</span>
+                <span class="stat-card-label">Specialization</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="stat-card" style="--card-accent: #ec4899">
+            <div class="stat-card-icon"><i class="bi bi-robot"></i></div>
+            <div class="stat-card-info">
+                <span class="stat-card-number">AI</span>
+                <span class="stat-card-label">Chat Available</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Current Semester Subjects -->
+    <div class="col-lg-8">
+        <div class="card-glass animate-fadeInUp" style="animation-delay:0.2s">
+            <div class="card-glass-header">
+                <h5><i class="bi bi-collection-fill me-2 text-primary-light"></i>Semester {{ user.semester }} Subjects
+                </h5>
+                <a href="{{ url_for('courses') }}" class="btn btn-glass btn-sm">View All Courses</a>
+            </div>
+            <div class="card-glass-body">
+                {% for subject in current_sem_subjects %}
+                {% set status = subject_progress.get(subject.id, 'Not Started') %}
+                <div class="subject-row">
+                    <div class="subject-row-left">
+                        <div class="subject-status-dot
+                            {% if status == 'Completed' %}dot-completed
+                            {% elif status == 'In Progress' %}dot-progress
+                            {% else %}dot-notstarted{% endif %}">
+                        </div>
+                        <div>
+                            <a href="{{ url_for('subject_detail', subject_id=subject.id) }}" class="subject-row-name">
+                                {{ subject.subject_name }}
+                            </a>
+                            <p class="subject-row-career">{{ career_map.get(subject.subject_name,
+                                subject.career_relevance or '')[:70] }}{% if career_map.get(subject.subject_name, '')|
+                                length > 70 %}...{% endif %}</p>
+                        </div>
+                    </div>
+                    <div class="subject-row-right">
+                        <span class="status-badge status-{{ status.lower().replace(' ', '-') }}">{{ status }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column -->
+    <div class="col-lg-4">
+        <!-- Semester Progress -->
+        <div class="card-glass mb-4 animate-fadeInUp" style="animation-delay:0.3s">
+            <div class="card-glass-header">
+                <h5><i class="bi bi-graph-up-arrow me-2 text-success-light"></i>This Semester</h5>
+            </div>
+            <div class="card-glass-body">
+                {% set sem_stats = progress_stats.by_semester.get(user.semester, {}) %}
+                {% set pct = sem_stats.get('pct', 0) %}
+                <div class="progress-stat-label d-flex justify-content-between mb-1">
+                    <span>{{ sem_stats.get('completed', 0) }}/{{ sem_stats.get('total', 0) }} completed</span>
+                    <span class="fw-600">{{ pct }}%</span>
+                </div>
+                <div class="custom-progress-bar mb-3">
+                    <div class="progress-fill progress-fill-green"
+                        style="--prog-pct: {{ pct }}%; width: var(--prog-pct);"></div>
+                </div>
+                <div class="d-flex gap-2 flex-wrap mt-3">
+                    <a href="{{ url_for('progress') }}" class="btn btn-glass btn-sm w-100">
+                        <i class="bi bi-graph-up-arrow me-1"></i> Full Progress Report
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Chat Quick Access -->
+        <div class="card-glass ai-chat-card animate-fadeInUp" style="animation-delay:0.4s">
+            <div class="card-glass-header">
+                <h5><i class="bi bi-robot me-2" style="color: var(--accent-purple)"></i>AI Assistant</h5>
+            </div>
+            <div class="card-glass-body text-center py-3">
+                <div class="ai-card-orb mb-3">
+                    <i class="bi bi-robot"></i>
+                </div>
+                <p class="text-muted-custom mb-3">Ask doubts, get career advice, or practice interview questions tailored for your {{ user.coding_level|lower }} level.</p>
+                <a href="{{ url_for('chat') }}" class="btn btn-glow w-100">
+                    <i class="bi bi-chat-dots-fill me-2"></i> Start Chatting
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Next Semester Preview -->
+    {% if next_sem %}
+    <div class="col-12 animate-fadeInUp" style="animation-delay:0.5s">
+        <div class="card-glass">
+            <div class="card-glass-header">
+                <h5><i class="bi bi-eye-fill me-2 text-warning-light"></i>Upcoming — Semester {{ next_sem }}</h5>
+                <span class="badge-glass">Preview</span>
+            </div>
+            <div class="card-glass-body">
+                <div class="row g-3">
+                    {% for subject in next_sem_subjects %}
+                    <div class="col-md-6 col-lg-4">
+                        <div class="preview-subject-card">
+                            <i class="bi bi-lock-fill preview-lock-icon"></i>
+                            <div>
+                                <div class="preview-subject-name">{{ subject.subject_name }}</div>
+                                <div class="preview-subject-career">{{ subject.career_relevance[:55] if
+                                    subject.career_relevance else '' }}...</div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% set current_user = user %}
+{% block title %}Specialization Path — Amrita CSE Navigator{% endblock %}
+{% block page_title %}<i class="bi bi-diagram-3-fill me-2"></i>Specialization Path{% endblock %}
+
+{% block content %}
+<div class="page-header mb-4 animate-fadeInUp">
+    <h2 class="page-title">Your Specialization: <span class="gradient-text">{{ user.specialization }}</span></h2>
+    <p class="page-subtitle">Explore electives, career alignment, and your personalized semester roadmap</p>
+</div>
+
+<!-- Specialization Selector Tabs -->
+<div class="spec-tabs mb-4 animate-fadeInUp" style="animation-delay:0.05s">
+    {% set spec_icons = {
+    'Product-Based Companies': 'bi-building-fill',
+    'Artificial Intelligence': 'bi-robot',
+    'Cyber Security': 'bi-shield-lock-fill',
+    'Data Science': 'bi-bar-chart-fill',
+    'Research': 'bi-journal-richtext',
+    'Startup': 'bi-rocket-takeoff-fill'
+    } %}
+    {% for spec in all_specs %}
+    <a href="#" class="spec-tab {% if spec == user.specialization %}active{% endif %}" data-spec="{{ spec }}"
+        onclick="switchSpec(this); return false;">
+        <i class="bi {{ spec_icons.get(spec, 'bi-star') }}"></i>
+        <span>{{ spec }}</span>
+    </a>
+    {% endfor %}
+</div>
+<form id="specForm" action="{{ url_for('profile') }}" method="POST" style="display:none">
+    <input type="hidden" name="name" value="{{ user.name }}">
+    <input type="hidden" name="semester" value="{{ user.semester }}">
+    <input type="hidden" name="cgpa" value="{{ user.cgpa or '' }}">
+    <input type="hidden" name="preferred_language" value="{{ user.preferred_language }}">
+    <input type="hidden" name="explanation_language" value="{{ user.explanation_language }}">
+    {% for spec in all_specs %}
+    <input type="radio" name="specialization" value="{{ spec }}">
+    {% endfor %}
+</form>
+
+<div class="row g-4">
+    <!-- Recommended Electives -->
+    <div class="col-lg-7">
+        <div class="card-glass animate-fadeInUp" style="animation-delay:0.1s">
+            <div class="card-glass-header">
+                <h5><i class="bi bi-stars me-2 text-warning-light"></i>Recommended Electives</h5>
+                <span class="badge-glass">{{ electives|length }} Courses</span>
+            </div>
+            <div class="card-glass-body p-0">
+                {% for elective in electives %}
+                <div class="elective-row {% if not loop.last %}elective-row-border{% endif %}">
+                    <div class="elective-num">{{ loop.index }}</div>
+                    <div class="elective-info">
+                        <div class="elective-name">{{ elective.elective_name }}</div>
+                        <div class="elective-desc">{{ elective.description }}</div>
+                    </div>
+                    <div class="elective-tag">Elective</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Semester-wise Roadmap -->
+    <div class="col-lg-5">
+        <div class="card-glass animate-fadeInUp" style="animation-delay:0.2s">
+            <div class="card-glass-header">
+                <h5><i class="bi bi-map-fill me-2 text-success-light"></i>Semester Roadmap</h5>
+            </div>
+            <div class="card-glass-body p-0">
+                <div class="roadmap-timeline">
+                    {% for sem in roadmap.keys()|sort %}
+                    {% set items = roadmap[sem] %}
+                    <div class="roadmap-step">
+                        <div class="roadmap-sem-badge {% if sem == user.semester %}roadmap-current{% endif %}">
+                            S{{ sem }}
+                        </div>
+                        <div class="roadmap-step-content">
+                            <div class="roadmap-sem-label">Semester {{ sem }}{% if sem == user.semester %} <span
+                                    class="current-tag ms-1">You are here</span>{% endif %}</div>
+                            {% for item in items %}
+                            <div class="roadmap-item">
+                                <i class="bi bi-arrow-right-circle-fill me-1"
+                                    style="color:var(--accent-purple);font-size:0.75rem"></i>
+                                {{ item }}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- All Specs Grid -->
+        <div class="card-glass mt-4 animate-fadeInUp" style="animation-delay:0.3s">
+            <div class="card-glass-header">
+                <h5><i class="bi bi-grid-fill me-2"></i>Other Paths</h5>
+            </div>
+            <div class="card-glass-body">
+                <div class="other-specs-grid">
+                    {% for spec, electives_list in elective_map.items() %}
+                    {% if spec != user.specialization %}
+                    <div class="other-spec-chip" data-spec="{{ spec }}" onclick="switchSpec(this)">
+                        <i class="bi {{ spec_icons.get(spec, 'bi-star') }}"></i>
+                        {{ spec }}
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    function switchSpec(el) {
+        const spec = el.dataset.spec;
+        const form = document.getElementById('specForm');
+        if (!form) return;
+        const radio = form.querySelector(`input[value="${spec}"]`);
+        if (radio) {
+            radio.checked = true;
+            form.submit();
+        }
+    }
+</script>
+{% endblock %}

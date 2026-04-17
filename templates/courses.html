@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% set current_user = user %}
+{% block title %}Courses — Amrita CSE Navigator{% endblock %}
+{% block page_title %}<i class="bi bi-play-circle-fill me-2"></i>Courses{% endblock %}
+
+{% block content %}
+<div class="page-header mb-4 animate-fadeInUp">
+    <h2 class="page-title">All Subjects & Courses</h2>
+    <p class="page-subtitle">Filter by semester, programming language, and explanation language</p>
+</div>
+
+<!-- Filters -->
+<div class="filter-bar animate-fadeInUp mb-4" style="animation-delay:0.05s">
+    <form method="GET" action="{{ url_for('courses') }}" class="filter-form" id="filterForm">
+        <div class="filter-group">
+            <label class="filter-label"><i class="bi bi-calendar3 me-1"></i> Semester</label>
+            <select name="semester" class="filter-select" onchange="this.form.submit()" id="semFilter">
+                <option value="all" {% if sem_filter=='all' %}selected{% endif %}>All Semesters</option>
+                {% for i in semesters %}
+                <option value="{{ i }}" {% if sem_filter|string==i|string %}selected{% endif %}>Semester {{ i }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="filter-group ms-auto">
+            <span class="filter-count-badge">{{ subjects|length }} Subjects</span>
+        </div>
+    </form>
+</div>
+
+<!-- Course Cards -->
+{% set prev_sem = namespace(val=-1) %}
+<div class="row g-3">
+    {% for subject in subjects %}
+    {% if subject.semester != prev_sem.val %}
+    <div class="col-12">
+        <div class="sem-section-label">
+            <span>Semester {{ subject.semester }}</span>
+        </div>
+    </div>
+    {% set prev_sem.val = subject.semester %}
+    {% endif %}
+    <div class="col-md-6 col-lg-4 animate-fadeInUp" style="animation-delay: {{ (loop.index0 % 6) * 0.05 }}s">
+        <div class="course-card">
+            <div class="course-card-header">
+                <div class="course-sem-tag">S{{ subject.semester }}</div>
+                {% set status = subject_progress.get(subject.id, 'Not Started') %}
+                <span class="status-pill status-{{ status.lower().replace(' ', '-') }}">
+                    {% if status == 'Completed' %}<i class="bi bi-check-circle-fill"></i>
+                    {% elif status == 'In Progress' %}<i class="bi bi-clock-fill"></i>
+                    {% else %}<i class="bi bi-circle"></i>{% endif %}
+                    {{ status }}
+                </span>
+            </div>
+            <h6 class="course-card-name">{{ subject.subject_name }}</h6>
+            <p class="course-card-career">
+                <i class="bi bi-briefcase-fill me-1" style="color:var(--accent-purple)"></i>
+                {{ subject.career_relevance[:65] if subject.career_relevance else 'Core CSE Knowledge' }}{% if
+                subject.career_relevance and subject.career_relevance|length > 65 %}...{% endif %}
+            </p>
+            <div class="course-card-footer">
+                <a href="{{ url_for('subject_detail', subject_id=subject.id) }}" class="btn btn-glow btn-sm w-100">
+                    <i class="bi bi-play-circle-fill me-1"></i> Open Course
+                </a>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-12">
+        <div class="empty-state">
+            <i class="bi bi-collection"></i>
+            <h5>No subjects found</h5>
+            <p>Try adjusting the semester filter.</p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

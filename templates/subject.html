@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% set current_user = user %}
+{% block title %}{{ subject.subject_name }} — Amrita CSE Navigator{% endblock %}
+{% block page_title %}<i class="bi bi-play-circle-fill me-2"></i>Course Detail{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<nav class="custom-breadcrumb mb-3 animate-fadeInUp">
+    <a href="{{ url_for('courses') }}"><i class="bi bi-play-circle me-1"></i>Courses</a>
+    <i class="bi bi-chevron-right mx-2"></i>
+    <span>{{ subject.subject_name }}</span>
+</nav>
+
+<div class="row g-4">
+    <!-- Left: Video + Controls -->
+    <div class="col-lg-7">
+        <!-- Title block / Space instead of filters -->
+        <h3 class="mb-3">{{ subject.subject_name }}</h3>
+
+        <!-- Video Embed -->
+        <div class="video-container animate-fadeInUp" style="animation-delay:0.1s">
+            {% if video_url %}
+            <iframe src="{{ video_url }}" title="{{ subject.subject_name }} - {{ prog_lang }} - {{ exp_lang }}"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen>
+            </iframe>
+            {% else %}
+            <div class="no-video-placeholder">
+                <i class="bi bi-youtube"></i>
+                <p>Video not available for this combination.</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Subject Info Card -->
+        <div class="card-glass mt-3 animate-fadeInUp" style="animation-delay:0.15s">
+            <div class="card-glass-header">
+                <h5><i class="bi bi-briefcase-fill me-2 text-primary-light"></i>Career Relevance</h5>
+                <span class="badge-glass">Sem {{ subject.semester }}</span>
+            </div>
+            <div class="card-glass-body">
+                <p class="career-reason-text">{{ career_reason }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right: Topics + Progress -->
+    <div class="col-lg-5">
+        <!-- Progress Status -->
+        <div class="card-glass mb-3 animate-fadeInUp">
+            <div class="card-glass-header">
+                <h6 class="mb-0"><i class="bi bi-graph-up-arrow me-2"></i>My Progress</h6>
+            </div>
+            <div class="card-glass-body">
+                <div class="status-selector-row">
+                    {% for status in ['Not Started', 'In Progress', 'Completed'] %}
+                    <button
+                        class="status-btn {% if current_status == status %}active status-btn-{{ status.lower().replace(' ','-') }}{% endif %}"
+                        data-subject-id="{{ subject.id }}" data-status="{{ status }}" onclick="updateProgress(this)">
+                        {% if status == 'Completed' %}<i class="bi bi-check-circle-fill"></i>
+                        {% elif status == 'In Progress' %}<i class="bi bi-clock-fill"></i>
+                        {% else %}<i class="bi bi-circle"></i>{% endif %}
+                        {{ status }}
+                    </button>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Topics Accordion -->
+        <div class="card-glass animate-fadeInUp" style="animation-delay:0.1s">
+            <div class="card-glass-header">
+                <h5><i class="bi bi-list-check me-2 text-success-light"></i>{{ subject.subject_name }}</h5>
+                <span class="badge-glass">{{ topics|length }} Topics</span>
+            </div>
+            <div class="card-glass-body p-0">
+                <div class="accordion topic-accordion" id="topicAccordion">
+                    {% for topic in topics %}
+                    <div class="accordion-item topic-accordion-item">
+                        <h2 class="accordion-header" id="topicHead{{ loop.index }}">
+                            <button
+                                class="accordion-button topic-accordion-btn {% if not loop.first %}collapsed{% endif %}"
+                                type="button" data-bs-toggle="collapse" data-bs-target="#topicCollapse{{ loop.index }}"
+                                aria-expanded="{{ 'true' if loop.first else 'false' }}">
+                                <span class="topic-num">{{ loop.index }}</span>
+                                <span class="topic-name">{{ topic.name }}</span>
+                            </button>
+                        </h2>
+                        <div id="topicCollapse{{ loop.index }}"
+                            class="accordion-collapse collapse {% if loop.first %}show{% endif %}">
+                            <div class="accordion-body topic-accordion-body">
+                                <ul class="subtopic-list">
+                                    {% for sub in topic.subtopics %}
+                                    <li class="subtopic-item">
+                                        <i class="bi bi-dot me-1"></i>{{ sub }}
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    function updateProgress(btn) {
+        const subjectId = btn.dataset.subjectId;
+        const status = btn.dataset.status;
+        fetch('/api/progress/update', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ subject_id: parseInt(subjectId), status: status })
+        }).then(r => r.json()).then(data => {
+            document.querySelectorAll('.status-btn').forEach(b => b.classList.remove('active', 'status-btn-not-started', 'status-btn-in-progress', 'status-btn-completed'));
+            btn.classList.add('active', 'status-btn-' + status.toLowerCase().replace(/ /g, '-'));
+            showToast('Progress updated to "' + status + '"!', 'success');
+        });
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block title %}Sign In — Amrita CSE Navigator{% endblock %}
+
+{% block landing_content %}
+<div class="auth-page">
+    <div class="auth-wrapper animate-fadeInUp">
+        <div class="auth-card card-glass">
+            <div class="auth-header text-center mb-4">
+                <div class="brand-icon mx-auto mb-3" style="width: 50px; height: 50px; font-size: 1.5rem;">
+                    <i class="bi bi-mortarboard-fill"></i>
+                </div>
+                <h2>Welcome Back</h2>
+                <p class="text-secondary text-sm">Sign in to continue your academic journey</p>
+            </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-custom mt-3">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <form action="{{ url_for('login') }}" method="POST" class="auth-form">
+                <div class="form-group mb-4">
+                    <label class="form-label-custom">Email or Name</label>
+                    <div class="input-group-custom auth-input">
+                        <i class="bi bi-envelope-fill"></i>
+                        <input type="text" name="username" class="form-control-custom" placeholder="name@amrita.edu or Your Name" required autofocus autocomplete="off">
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-glow w-100 py-3 mb-3" style="font-size: 1rem;">
+                    Continue <i class="bi bi-arrow-right ms-2"></i>
+                </button>
+            </form>
+
+            <div class="auth-divider my-4">
+                <span>or</span>
+            </div>
+
+            <button type="button" class="btn btn-glass w-100 py-2 d-flex justify-content-center align-items-center gap-2">
+                <i class="bi bi-google"></i> Continue with Google
+            </button>
+
+            <div class="auth-footer text-center mt-4 pt-3 border-top" style="border-color: var(--glass-border) !important;">
+                <p class="text-secondary mb-0" style="font-size: 0.9rem;">
+                    Don't have an account? <a href="{{ url_for('profile') }}" class="text-primary-light fw-bold text-decoration-none">Create one</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Dedicated Auth Page Background */
+    .auth-page {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--primary-bg);
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+        padding: 2rem;
+    }
+
+    /* Ambient Glows */
+    .auth-page::before {
+        content: '';
+        position: absolute;
+        top: -20%;
+        right: -10%;
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, rgba(11, 15, 25, 0) 70%);
+        border-radius: 50%;
+        z-index: -1;
+    }
+
+    .auth-page::after {
+        content: '';
+        position: absolute;
+        bottom: -20%;
+        left: -10%;
+        width: 500px;
+        height: 500px;
+        background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, rgba(11, 15, 25, 0) 70%);
+        border-radius: 50%;
+        z-index: -1;
+    }
+
+    .auth-wrapper {
+        width: 100%;
+        max-width: 420px;
+        z-index: 10;
+    }
+
+    .auth-card {
+        padding: 2.5rem;
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+    
+    .auth-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    }
+
+    .auth-input {
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+
+    .auth-input:focus-within {
+        border-color: rgba(139, 92, 246, 0.5);
+        box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+    }
+    
+    .auth-input .form-control-custom {
+        background: transparent !important;
+        border: none !important;
+        padding: 0.8rem 1rem !important;
+    }
+
+    .auth-divider {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        color: var(--text-muted);
+        font-size: 0.85rem;
+    }
+    
+    .auth-divider::before,
+    .auth-divider::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid var(--glass-border);
+    }
+
+    .auth-divider span {
+        padding: 0 10px;
+    }
+    
+    .alert-custom {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        color: #fca5a5;
+        border-radius: 10px;
+        font-size: 0.9rem;
+    }
+    
+    .alert-success.alert-custom {
+        background: rgba(16, 185, 129, 0.1);
+        border-color: rgba(16, 185, 129, 0.3);
+        color: #6ee7b7;
+    }
+    
+    .alert-info.alert-custom {
+        background: rgba(59, 130, 246, 0.1);
+        border-color: rgba(59, 130, 246, 0.3);
+        color: #93c5fd;
+    }
+</style>
+{% endblock %}
